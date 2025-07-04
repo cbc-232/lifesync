@@ -1,0 +1,115 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum UserRole {
+  PATIENT
+  MEDICAL
+  ADMIN
+  HOSPITAL
+}
+
+enum AppointmentType {
+  BOOKING
+  EMERGENCY
+  INQUIRY
+}
+
+enum AppointmentStatus {
+  PENDING
+  CONFIRMED
+  COMPLETED
+  CANCELLED
+}
+
+model User {
+  id           Int       @id @default(autoincrement())
+  email        String?   @unique
+  phone        String?   @unique
+  role         UserRole  @default(PATIENT)
+  isActive     Boolean   @default(false)
+  passwordHash String?
+  createdAt    DateTime  @default(now())
+
+  patientProfile Patient? @relation(name: "UserPatient")
+  staffProfile   Staff?   @relation(name: "UserStaff")
+}
+
+model Patient {
+  id           Int           @id @default(autoincrement())
+  user         User          @relation(name: "UserPatient", fields: [userId], references: [id])
+  userId       Int           @unique
+  name         String
+  phone        String        @unique
+  email        String?       @unique
+  location     String?
+  reason       String?
+  createdAt    DateTime      @default(now())
+  appointments Appointment[]
+}
+
+model Staff {
+  id           Int           @id @default(autoincrement())
+  user         User          @relation(name: "UserStaff", fields: [userId], references: [id])
+  userId       Int           @unique
+  licenseNo    String
+  hospital     Hospital      @relation(fields: [hospitalId], references: [id])
+  hospitalId   Int
+  isVerified   Boolean       @default(false)
+  appointments Appointment[] // Added to track staff’s assigned appointments
+}
+
+model Hospital {
+  id           Int           @id @default(autoincrement())
+  name         String
+  location     String
+  appointments Appointment[]
+  staff        Staff[]
+}
+
+model Appointment {
+  id          Int              @id @default(autoincrement())
+  
+  // Optional patient or guest
+  patient     Patient?         @relation(fields: [patientId], references: [id])
+  patientId   Int?
+
+  guestName   String?
+  guestPhone  String?
+  guestEmail  String?
+
+  // Assigned medical staff (optional)
+  personnel   Staff?           @relation(fields: [personnelId], references: [id])
+  personnelId Int?
+
+  // Hospital is always required
+  hospital    Hospital         @relation(fields: [hospitalId], references: [id])
+  hospitalId  Int
+
+  // Controlled types and status
+  type        AppointmentType
+  status      AppointmentStatus @default(PENDING)
+
+  location    String
+  date        String
+  time        String
+  reason      String?
+
+  scheduledAt DateTime         @default(now())
+  createdAt   DateTime         @default(now())
+}
+
+model Inquiry {
+  id        Int      @id @default(autoincrement())
+  name      String
+  email     String
+  message   String
+  location  String
+  createdAt DateTime @default(now())
+}

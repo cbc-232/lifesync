@@ -1,0 +1,45 @@
+{
+  "compilerOptions": {
+    "target": "es2020",
+    "module": "commonjs",
+    "rootDir": ".",               
+    "outDir": "./dist",
+    "strict": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noImplicitAny": false,
+    "moduleResolution": "node",
+
+    // load these type packages automatically
+    "types": [
+      "node",
+      "jsonwebtoken",
+      "@types/jest",
+      "@types/supertest"
+    ],
+
+    // Allow absolute imports with meaningful aliases
+    "baseUrl": "./src",
+    "paths": {
+      "@services/*": ["services/*"],
+      "@controllers/*": ["controllers/*"],
+      "@routes/*": ["routes/*"],
+      "@types/*": ["types/*"],
+      "@errors/*": ["errors/*"],
+      "@docs/*": ["docs/*"],
+      "@middlewares/*": ["middlewares/*"],
+      "@utils/*": ["utils/*"],
+      "@prisma/*": ["../prisma/*"]
+    }
+  },
+  "include": [
+    "src",
+    "prisma"
+  ],
+  "exclude": [
+    "node_modules",
+    "dist"
+  ]
+}
